@@ -218,20 +218,21 @@ plot_latent_space_airfoil(vae)
 """
 
 
-def plot_label_clusters(vae, data, labels):
-    # display a 2D plot of the airfoil classes in the latent space
+def plot_label_clusters(vae, data):
+    # display a 2D plot of the airfoil latent space, colored by data index (gradient)
     z_mean, _, _ = vae.encoder.predict(data, verbose=0)
+    idx = np.arange(len(z_mean))
     plt.figure(figsize=(12, 10))
-    plt.scatter(z_mean[:, 0], z_mean[:, 1], c=labels)
-    plt.colorbar()
+    scatter = plt.scatter(z_mean[:, 0], z_mean[:, 1], c=idx, cmap='viridis')
+    plt.colorbar(scatter, label='Data Index')
     plt.xlabel("z[0]")
     plt.ylabel("z[1]")
+    plt.title("Latent Space Clustering (Index Gradient)")
     plt.show()
 
 """
-「潜在空間の可視化（クラスタリングプロット）用に、画像とラベルを準備」
+「潜在空間の可視化（クラスタリングプロット）用に、airfoilとラベルを準備」
 """
-# (x_train, y_train), _ = keras.datasets.mnist.load_data()
-# x_train = np.expand_dims(x_train, -1).astype("float32") / 255
 
-# plot_label_clusters(vae, x_train, y_train)
+airfoil_data = np.load("airfoils_resampled.npy")
+plot_label_clusters(vae, airfoil_data)
