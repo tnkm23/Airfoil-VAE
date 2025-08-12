@@ -29,10 +29,23 @@ def read_airfoil(data):
         airfoil = f.readlines()
     # Split strings by tab
     airfoil = [line.split() for line in airfoil]
-    # Convert strings in list to numpy array 
-    airfoil = np.array(airfoil[1:],dtype='float64')
+        
+    coords = []
+    for line in airfoil[1:]:  # 1行目はヘッダー
+        parts = line.strip().split()
+        if len(parts) == 2:
+            try:
+                x, y = float(parts[0]), float(parts[1])
+                coords.append([x, y])
+            except ValueError:
+                continue  # 数値変換できない行はスキップ
+        else:
+            continue  # 空行や座標以外の行はスキップ
+    if len(coords) == 0:
+        return np.empty((0,2), dtype='float64')  # 座標がない場合は空配列
+    return np.array(coords, dtype='float64')
 
-    return airfoil
+
 
 
 if __name__ == "__main__":
