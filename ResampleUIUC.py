@@ -28,11 +28,10 @@ prefix_dict = {
     "clark": "Clark Y",
     "usa": "USA",
     "mod": "Modified",
-    "ag": "AG",
+    "ag": "Drela AG",
     "oa": "OA",
     "hq": "HQ",
     "ms": "MS",
-    "ag": " Drela AG",
     "ah": "Althaus AH",
     "mel": "ME-industry",
     # 必要に応じて追加

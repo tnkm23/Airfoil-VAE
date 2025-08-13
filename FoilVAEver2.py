@@ -30,6 +30,7 @@ from keras import layers
 # ハイパーパラメータ
 # -----------------------
 DATA_PATH = "airfoils_resampled.npy"
+LABEL_PATH = "airfoils_labels.npy"
 MODEL_DIR = "vae_models"
 BATCH_SIZE = 32
 EPOCHS = 30
@@ -235,4 +236,5 @@ def plot_label_clusters(vae, data):
 """
 
 airfoil_data = np.load("airfoils_resampled.npy")
+airfoil_labels = np.load("airfoils_labels.npy")
 plot_label_clusters(vae, airfoil_data)
