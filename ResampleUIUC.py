@@ -1,11 +1,51 @@
 """
 UIUCのairfoilデータを読み込み、正規化とリサンプリングを行うモジュール
+25.8.13 ラベル付け機能を追加
 """
 
 import numpy as np
 import glob
 from scipy import interpolate
 import os
+
+
+"""
+ラベリング
+UCUI airfoil データセットを属性でラベル付けする。
+UCUI公式（https://m-selig.ae.illinois.edu/ads/coord_database.html）に記述されているメーカーを
+データのファイル名から抽出し、ラベルとして使用する。
+"""
+
+# 接頭辞辞書
+prefix_dict = {
+    "naca": "NACA",
+    "e": "Eppler",
+    "fx": "Wortmann FX",
+    "goe": "Goettingen",
+    "mh": "MH",
+    "s": "Selig",
+    "raf": "RAF",
+    "clark": "Clark Y",
+    "usa": "USA",
+    "mod": "Modified",
+    "ag": "AG",
+    "oa": "OA",
+    "hq": "HQ",
+    "ms": "MS",
+    "ag": " Drela AG",
+    "ah": "Althaus AH",
+    "mel": "ME-industry",
+    # 必要に応じて追加
+}
+
+# ラベル抽出関数
+def get_airfoil_label(filename, prefix_dict=prefix_dict):
+    name = os.path.splitext(filename.lower())[0]
+    for prefix, label in prefix_dict.items():
+        if name.startswith(prefix):
+            return label
+    return "Unknown"
+
 
 def load_airfoil_dat(file_path):
     """UIUCのdatファイルを読み込んでnumpy配列に変換"""
@@ -75,11 +115,14 @@ def normalize_and_resample_uiuc(coords, n_points=200):
 
 
 
-def process_uiuc_folder(folder_path, n_points=200, save_path="airfoils_resampled.npy"):
+def process_uiuc_folder(folder_path, n_points=200, 
+                        save_dataset_path="airfoils_resampled.npy", 
+                        save_labels_path="airfoils_labels.npy"):
     """UIUCのフォルダを処理して固定点数に揃えたデータセットを作成"""
     all_files = glob.glob(os.path.join(folder_path, "*.dat"))
     dataset = []
     names = []
+    labels = []
 
     for i, file in enumerate(all_files):
         try:
@@ -87,15 +130,20 @@ def process_uiuc_folder(folder_path, n_points=200, save_path="airfoils_resampled
             coords_resampled = normalize_and_resample(coords, n_points)
             dataset.append(coords_resampled)
             names.append(os.path.basename(file))
+            labels.append(get_airfoil_label(os.path.basename(file)))
         except Exception as e:
             print(f"Skipping {file}: {e}")
 
     dataset = np.array(dataset)  # shape = (num_files, n_points, 2)
-    np.save(save_path, dataset)
-    print(f"Saved {dataset.shape} to {save_path}")
-    return dataset, names
+    labels = np.array(labels)
+
+    np.save(save_dataset_path, dataset)
+    np.save(save_labels_path, labels)
+    print(f"Saved {dataset.shape} to {save_dataset_path}")
+    print(f"Saved {labels.shape} to {save_labels_path}")
+    return dataset, names, labels
 
 # 実行例
 if __name__ == "__main__":
     folder = "UIUC Database"  # UIUCのdatフォルダ
-    dataset, names = process_uiuc_folder(folder, n_points=200)
+    dataset, names, labels = process_uiuc_folder(folder, n_points=200)
