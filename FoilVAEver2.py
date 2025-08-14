@@ -176,11 +176,6 @@ class VAE(keras.Model):
 # Airfoilデータの読み込み
 airfoil_data = np.load("airfoils_resampled.npy").astype("float32")  # shape: (1637, 200, 2)
 
-# 必要ならyチャンネルのスケール調整
-y_std = np.std(airfoil_data[:,:,1])
-if y_std > 0:
-    airfoil_data[:,:,1] = airfoil_data[:,:,1] / y_std
-
 # VAEモデルの作成・コンパイル
 vae = VAE(encoder, decoder)
 vae.compile(optimizer=keras.optimizers.Adam())
@@ -237,4 +232,45 @@ def plot_label_clusters(vae, data):
 
 airfoil_data = np.load("airfoils_resampled.npy")
 airfoil_labels = np.load("airfoils_labels.npy")
+unique_labels = np.unique(airfoil_labels)
+
 plot_label_clusters(vae, airfoil_data)
+
+
+# # z_mean を labels の値ごとにリストに分ける
+# clusters = {label: [] for label in unique_labels}
+# for i in range(len(airfoil_labels)):
+#     clusters[airfoil_labels[i]].append(z_mean[i])
+
+# # 各クラスタの散布図を描画
+# plt.figure(figsize=(8, 6))
+# for cluster, points in clusters.items():
+#     if points:  # クラスタにポイントがある場合のみ描画
+#         points = np.array(points)
+#         plt.scatter(points[:, 0], points[:, 1], label=f'{cluster}')
+# plt.xlabel('Z-Mean 1')
+# plt.ylabel('Z-Mean 2')
+# plt.title('Z-Mean Scatter Plot')
+# plt.legend()
+# plt.show()    
+
+# 関数化
+def plot_z_mean_clusters(z_mean, airfoil_labels):
+    unique_labels = np.unique(airfoil_labels)
+    clusters = {label: [] for label in unique_labels}
+    for i in range(len(airfoil_labels)):
+        clusters[airfoil_labels[i]].append(z_mean[i])
+
+    # 各クラスタの散布図を描画
+    plt.figure(figsize=(8, 6))
+    for cluster, points in clusters.items():
+        if points:  # クラスタにポイントがある場合のみ描画
+            points = np.array(points)
+            plt.scatter(points[:, 0], points[:, 1], label=f'{cluster}')
+    plt.xlabel('Z-Mean 1')
+    plt.ylabel('Z-Mean 2')
+    plt.title('Z-Mean Scatter Plot')
+    plt.legend()
+    plt.show()
+
+
