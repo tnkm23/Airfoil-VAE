@@ -176,6 +176,14 @@ class VAE(keras.Model):
 # Airfoilデータの読み込み
 airfoil_data = np.load("airfoils_resampled.npy").astype("float32")  # shape: (1637, 200, 2)
 
+# yチャンネルを各airfoilごとに[0,1]に正規化
+for i in range(airfoil_data.shape[0]):
+    y = airfoil_data[i,:,1]
+    y_min = y.min()
+    y_max = y.max()
+    if y_max > y_min:
+        airfoil_data[i,:,1] = (y - y_min) / (y_max - y_min)
+
 # VAEモデルの作成・コンパイル
 vae = VAE(encoder, decoder)
 vae.compile(optimizer=keras.optimizers.Adam())
